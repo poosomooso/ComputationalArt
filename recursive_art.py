@@ -19,8 +19,10 @@ def build_random_function(min_depth, max_depth):
     """
     if max_depth<0 or (min_depth<0 and random.random()<.5):
         return ['x'] if random.random()<.5 else ['y']
+    #single input
     if random.random()<.5:
         return [random.choice(['cos_pi','sin_pi']),build_random_function(min_depth-1,max_depth-1)]
+    #two inputs
     else:
         return [random.choice(['prod','avg','para','mem']),build_random_function(min_depth-1,max_depth-1),build_random_function(min_depth-1,max_depth-1)]
 
@@ -50,13 +52,17 @@ def evaluate_random_function(f, x, y):
         return evaluate_random_function(f[1],x,y)*evaluate_random_function(f[2],x,y)
     if f[0]=='avg':
         return (evaluate_random_function(f[1],x,y)+evaluate_random_function(f[2],x,y))/2.0
+    #evaluates a parabola
     if f[0]=='para':
-        res = (evaluate_random_function(f[1],x,y)**2+evaluate_random_function(f[2],x,y))
-        return res%math.copysign(1,res)
+        res = (evaluate_random_function(f[1],x,y)**2-evaluate_random_function(f[2],x,y))
+        return res%math.copysign(1,res)#mod 1 or -1 for error correction
+
+    #takes the last few digits of the memory address of the string representation of wither x or y
+    #if we don't have random x or y, we get bars accross the screen
     if f[0]=='mem':
         numx = evaluate_random_function(f[1],x,y)
         numy = evaluate_random_function(f[2],x,y)
-        return math.copysign((1000.0/(id(str(numx))%10000))%1,numx) if random.random()<.5 else math.copysign((1000.0/(id(str(numy))%10000))%1,numy)%1
+        return math.copysign((1000.0/(id(str(numx))%10000))%1,numx) if random.random()<.5 else math.copysign((1000.0/(id(str(numy))%10000))%1,numy)#mod for error correction
     raise ValueError('This function is invalid')
 
 
@@ -139,6 +145,9 @@ def build_random_function_lambda(min_depth, max_depth):
     """ Builds a random function of depth at least min_depth and depth
         at most max_depth (see assignment writeup for definition of depth
         in this context)
+        
+        Uses anonymous functions. It's so slow. And the syntax is weird and the
+        internet is not the most helpful for nesting lambdas
 
         min_depth: the minimum depth of the random function
         max_depth: the maximum depth of the random function
@@ -171,7 +180,8 @@ def generate_art(filename, x_size=350, y_size=350):
         filename: string filename for image (should be .png)
         x_size, y_size: optional args to set image dimensions (default: 350)
     """
-    # Functions for red, green, and blue channels - where the magic happens!
+    # Functions for red, green, and blue channels - where the magic happens
+    # commented lines for lambda function testing 
     # red_function = build_random_function_lambda(5,7)
     # green_function = build_random_function_lambda(5,7)
     # blue_function = build_random_function_lambda(5,7)
