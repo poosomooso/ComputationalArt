@@ -22,7 +22,7 @@ def build_random_function(min_depth, max_depth):
     if random.random()<.5:
         return [random.choice(['cos_pi','sin_pi']),build_random_function(min_depth-1,max_depth-1)]
     else:
-        return [random.choice(['prod','avg']),build_random_function(min_depth-1,max_depth-1),build_random_function(min_depth-1,max_depth-1)]
+        return [random.choice(['prod','avg','para','mem']),build_random_function(min_depth-1,max_depth-1),build_random_function(min_depth-1,max_depth-1)]
 
 def evaluate_random_function(f, x, y):
     """ Evaluate the random function f with inputs x,y
@@ -50,6 +50,13 @@ def evaluate_random_function(f, x, y):
         return evaluate_random_function(f[1],x,y)*evaluate_random_function(f[2],x,y)
     if f[0]=='avg':
         return (evaluate_random_function(f[1],x,y)+evaluate_random_function(f[2],x,y))/2.0
+    if f[0]=='para':
+        res = (evaluate_random_function(f[1],x,y)**2+evaluate_random_function(f[2],x,y))
+        return res%math.copysign(1,res)
+    if f[0]=='mem':
+        numx = evaluate_random_function(f[1],x,y)
+        numy = evaluate_random_function(f[2],x,y)
+        return math.copysign((1000.0/(id(str(numx))%10000))%1,numx) if random.random()<.5 else math.copysign((1000.0/(id(str(numy))%10000))%1,numy)%1
     raise ValueError('This function is invalid')
 
 
@@ -80,6 +87,8 @@ def remap_interval(val,
         >>> remap_interval(5, 4, 6, 1, 2)
         1.5
     """
+    if val>input_interval_end or val <input_interval_start:
+        raise ValueError('The value is not between the specified interval')
     val+=(0-input_interval_start)
     val*=((output_interval_end-output_interval_start)/float(input_interval_end-input_interval_start))
     val+=output_interval_start
@@ -197,6 +206,9 @@ if __name__ == '__main__':
     # TODO: Un-comment the generate_art function call after you
     #       implement remap_interval and evaluate_random_function
     generate_art("myart.png",500,500)
+    generate_art("myart1.png",500,500)
+    generate_art("myart2.png",500,500)
+    generate_art("myart3.png",500,500)
 
     # Test that PIL is installed correctly
     # TODO: Comment or remove this function call after testing PIL install
