@@ -49,7 +49,7 @@ def evaluate_random_function(f, x, y):
     if f[0]=='prod':
         return evaluate_random_function(f[1],x,y)*evaluate_random_function(f[2],x,y)
     if f[0]=='avg':
-        return evaluate_random_function(f[1],x,y)*evaluate_random_function(f[2],x,y)/2.0
+        return (evaluate_random_function(f[1],x,y)+evaluate_random_function(f[2],x,y))/2.0
     raise ValueError('This function is invalid')
 
 
@@ -138,13 +138,22 @@ def build_random_function_lambda(min_depth, max_depth):
                  these functions)
     """
     if max_depth<0 or (min_depth<0 and random.random()<.5):
-        return lambda x,y:x if random.random()<.5 else lambda x,y:y
-    if random.random()<.5:
-        return random.choice([lambda x,y:math.cos((build_random_function_lambda(min_depth-1,max_depth-1)(x,y))),
-            lambda x,y:math.sin((build_random_function_lambda(min_depth-1,max_depth-1)(x,y)))])
-    else:
-        return random.choice([lambda x,y:(build_random_function_lambda(min_depth-1,max_depth-1)(x,y)),
-            lambda x,y:(build_random_function_lambda(min_depth-1,max_depth-1)(x,y))])
+        if random.random()<.5:
+            return lambda x,y:x 
+        else: 
+            return lambda x,y:y
+
+    func1 = build_random_function_lambda(min_depth-1,max_depth-1)
+    func2 = build_random_function_lambda(min_depth-1,max_depth-1)
+
+    cos_pi = lambda x,y:math.cos(x*math.pi)
+    sin_pi = lambda x,y:math.sin(x*math.pi)
+    prod = lambda x,y:x*y
+    avg = lambda x,y:(x+y)/2.0
+    func = random.choice([cos_pi,sin_pi,prod,avg])
+
+    res = lambda x,y:func(func1(x,y),func2(x,y))
+    return res
 
 
 def generate_art(filename, x_size=350, y_size=350):
